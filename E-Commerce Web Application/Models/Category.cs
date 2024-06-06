@@ -8,9 +8,12 @@ namespace E_Commerce_Web_Application.Models
         [Key]
         public int Id { get; set; }
         [Required]
+        [MaxLength(128)]
         [DisplayName("Category Name")]
         public string Name { get; set; }
+
         [DisplayName("Display Order")]
+        [Range(1, 100, ErrorMessage = "Must be between 1 - 100")]
         public int DisplayOrder { get; set; }
     }
 }
