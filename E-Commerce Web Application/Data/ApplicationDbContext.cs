@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using E_Commerce_Web_Application.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace E_Commerce_Web_Application.Data
 {
@@ -7,6 +8,17 @@ namespace E_Commerce_Web_Application.Data
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
             
+        }
+
+        public DbSet<Category> Categories { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Category>().HasData(
+                    new Category { Id = 1, Name = "Action", DisplayOrder = 1 },
+                    new Category { Id = 2, Name = "Fiction", DisplayOrder = 1 },
+                    new Category { Id = 3, Name = "Science", DisplayOrder = 1 }
+                );
         }
     }
 }
