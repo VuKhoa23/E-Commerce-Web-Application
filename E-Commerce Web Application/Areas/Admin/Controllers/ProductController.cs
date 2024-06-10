@@ -22,7 +22,7 @@ namespace E_Commerce_Web_Application.Areas.Admin.Controllers
             return View(productList);
         }
 
-        public IActionResult Create()
+        public IActionResult Upsert(int? id) // update and insert
         {
             IEnumerable<SelectListItem> categoryList = _unitOfWork.Category.GetAll().Select(c =>
             {
@@ -39,11 +39,23 @@ namespace E_Commerce_Web_Application.Areas.Admin.Controllers
                 Product = new Product()
             };
 
+            // insert
+            if (id == null || id == 0)
+            {
+                return View(productVM);
+            }
+            // update
+            var product = _unitOfWork.Product.Get(c => c.Id == id);
+            if (product == null)
+            {
+                return NotFound();
+            }
+            productVM.Product = product;
             return View(productVM);
         }
 
         [HttpPost]
-        public IActionResult Create(ProductViewModel productVM)
+        public IActionResult Upsert(ProductViewModel productVM, IFormFile? file)
         {
             if (productVM.Product.Name.StartsWith(" "))
             {
@@ -70,40 +82,6 @@ namespace E_Commerce_Web_Application.Areas.Admin.Controllers
                 return View(productVM);
             }
         }
-
-        public IActionResult Edit(int? id)
-        {
-            if (id == null || id <= 0)
-            {
-                return NotFound();
-            }
-            var product = _unitOfWork.Product.Get(c => c.Id == id);
-            Trace.WriteLine(product.Name);
-            if (product == null)
-            {
-                return NotFound();
-            }
-            return View(product);
-        }
-
-        [HttpPost]
-        public IActionResult Edit(Product obj)
-        {
-            if (obj.Name.StartsWith(" "))
-            {
-                ModelState.AddModelError("name", "Product's name cannot start with spaces");
-                return View();
-            }
-            if (ModelState.IsValid)
-            {
-                _unitOfWork.Product.Update(obj);
-                _unitOfWork.Save();
-                TempData["success"] = "Product was successfully updated";
-                return RedirectToAction("Index", "Product");
-            }
-            return View();
-        }
-
         public IActionResult Delete(int? id)
         {
             if (id == null || id <= 0)
