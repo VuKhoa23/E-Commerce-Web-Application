@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Utils
 {
-    public static class StaticDetails
+    public static class AppConstants
     {
 
     }
