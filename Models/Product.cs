@@ -30,6 +30,7 @@ namespace Models
         [Range(1, 1000)]
         public double ListPrice { get; set; }
 
+        [Display(Name = "Category")]
         public int? CategoryId { get; set; }
         [ForeignKey("CategoryId")]
         [ValidateNever]

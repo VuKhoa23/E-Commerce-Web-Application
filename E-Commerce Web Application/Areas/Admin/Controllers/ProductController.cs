@@ -12,9 +12,11 @@ namespace E_Commerce_Web_Application.Areas.Admin.Controllers
     public class ProductController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;
-        public ProductController(IUnitOfWork unitOfWork)
+        private readonly IWebHostEnvironment _webHostEnvironment;
+        public ProductController(IUnitOfWork unitOfWork, IWebHostEnvironment webHostEnvironment)
         {
             _unitOfWork = unitOfWork;
+            _webHostEnvironment = webHostEnvironment;
         }
         public IActionResult Index()
         {
@@ -59,12 +61,49 @@ namespace E_Commerce_Web_Application.Areas.Admin.Controllers
         {
             if (productVM.Product.Name.StartsWith(" "))
             {
-                ModelState.AddModelError("name", "Product's name cannot start with spaces");
-                return View();
+                ModelState.AddModelError("Product.Name", "Product's name cannot start with spaces");
+                productVM.CategoryList = _unitOfWork.Category.GetAll().Select(c =>
+                {
+                    return new SelectListItem
+                    {
+                        Text = c.Name,
+                        Value = c.Id.ToString(),
+                    };
+                });
+                return View(productVM);
             }
             if (ModelState.IsValid)
             {
-                _unitOfWork.Product.Add(productVM.Product);
+                string wwwRootPath = _webHostEnvironment.WebRootPath;
+                if (file != null)
+                {
+                    string fileName = (DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond) + Path.GetExtension(file.FileName);
+                    string productPath = Path.Combine(wwwRootPath, @"images\products");
+                    
+                    if (!string.IsNullOrEmpty(productVM.Product.ImgUrl))
+                    {
+                        var oldImgPath = Path.Combine(wwwRootPath, productVM.Product.ImgUrl.TrimStart('\\'));
+
+                        if(System.IO.File.Exists(oldImgPath))
+                        {
+                            System.IO.File.Delete(oldImgPath);
+                        }
+                    }
+
+                    using (var fileStream = new FileStream(Path.Combine(productPath, fileName), FileMode.Create))
+                    {
+                        file.CopyTo(fileStream);
+                    }
+                    productVM.Product.ImgUrl = @"\images\products\" + fileName;
+                }
+                if (productVM.Product.Id == 0)
+                {
+                    _unitOfWork.Product.Add(productVM.Product);
+                }
+                else
+                {
+                    _unitOfWork.Product.Update(productVM.Product);
+                }
                 _unitOfWork.Save();
                 TempData["success"] = "Product was successfully created";
                 return RedirectToAction("Index", "Product");
