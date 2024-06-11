@@ -16,8 +16,11 @@ namespace DataAccess.Repository
         {
             _db = db;
             Category = new CategoryRepository(db);
+            Product = new ProductRepository(db);
         }
         public ICategoryRepository Category { get; private set; }
+        public IProductRepository Product { get; private set; }
+
 
         public void Save()
         {
