@@ -29,7 +29,8 @@ namespace DataAccess.Data
                        Author = "J.K. Rolling", 
                        Description = "Mysterious journey of young boy Harry Potter",
                        ISBN = "99999999",
-                       ListPrice = 50
+                       ListPrice = 50,
+                       ImgUrl = null
                    }
             );
         }

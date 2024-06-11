@@ -3,6 +3,8 @@ using Models;
 using Microsoft.AspNetCore.Mvc;
 using DataAccess.Repository.IRepository;
 using System.Diagnostics;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Models.ViewModels;
 
 namespace E_Commerce_Web_Application.Areas.Admin.Controllers
 {
@@ -22,25 +24,51 @@ namespace E_Commerce_Web_Application.Areas.Admin.Controllers
 
         public IActionResult Create()
         {
-            return View();
+            IEnumerable<SelectListItem> categoryList = _unitOfWork.Category.GetAll().Select(c =>
+            {
+                return new SelectListItem
+                {
+                    Text = c.Name,
+                    Value = c.Id.ToString(),
+                };
+            });
+
+            ProductViewModel productVM = new()
+            {
+                CategoryList = categoryList,
+                Product = new Product()
+            };
+
+            return View(productVM);
         }
 
         [HttpPost]
-        public IActionResult Create(Product obj)
+        public IActionResult Create(ProductViewModel productVM)
         {
-            if (obj.Name.StartsWith(" "))
+            if (productVM.Product.Name.StartsWith(" "))
             {
                 ModelState.AddModelError("name", "Product's name cannot start with spaces");
                 return View();
             }
             if (ModelState.IsValid)
             {
-                _unitOfWork.Product.Add(obj);
+                _unitOfWork.Product.Add(productVM.Product);
                 _unitOfWork.Save();
                 TempData["success"] = "Product was successfully created";
                 return RedirectToAction("Index", "Product");
             }
-            return View();
+            else
+            {
+                productVM.CategoryList = _unitOfWork.Category.GetAll().Select(c =>
+                {
+                    return new SelectListItem
+                    {
+                        Text = c.Name,
+                        Value = c.Id.ToString(),
+                    };
+                });
+                return View(productVM);
+            }
         }
 
         public IActionResult Edit(int? id)
