@@ -99,13 +99,14 @@ namespace E_Commerce_Web_Application.Areas.Admin.Controllers
                 if (productVM.Product.Id == 0)
                 {
                     _unitOfWork.Product.Add(productVM.Product);
-                }
-                else
+					TempData["success"] = "Product was successfully created";
+				}
+				else
                 {
                     _unitOfWork.Product.Update(productVM.Product);
-                }
-                _unitOfWork.Save();
-                TempData["success"] = "Product was successfully created";
+					TempData["success"] = "Product was successfully updated";
+				}
+				_unitOfWork.Save();
                 return RedirectToAction("Index", "Product");
             }
             else

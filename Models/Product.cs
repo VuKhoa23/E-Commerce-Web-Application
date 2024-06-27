@@ -31,7 +31,8 @@ namespace Models
         public double ListPrice { get; set; }
 
         [Display(Name = "Category")]
-        public int? CategoryId { get; set; }
+        [Required]
+        public int CategoryId { get; set; }
         [ForeignKey("CategoryId")]
         [ValidateNever]
         public Category Category { get; set; }

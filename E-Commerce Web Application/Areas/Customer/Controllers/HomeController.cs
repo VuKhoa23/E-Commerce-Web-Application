@@ -1,6 +1,7 @@
 using Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
+using DataAccess.Repository.IRepository;
 
 namespace E_Commerce_Web_Application.Areas.Customer.Controllers
 {
@@ -8,18 +9,27 @@ namespace E_Commerce_Web_Application.Areas.Customer.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(ILogger<HomeController> logger, IUnitOfWork unitOfWork)
         {
             _logger = logger;
+            _unitOfWork = unitOfWork;
         }
 
         public IActionResult Index()
         {
-            return View();
+            IEnumerable<Product> products = _unitOfWork.Product.GetAll(includeProperties: "Category");
+            return View(products);
         }
 
-        public IActionResult Privacy()
+		public IActionResult Details(int productId)
+		{
+			Product product = _unitOfWork.Product.Get(p => p.Id == productId, includeProperties: "Category");
+			return View(product);
+		}
+
+		public IActionResult Privacy()
         {
             return View();
         }
